@@ -3,6 +3,7 @@ import argparse
 import numpy as np
 import cv2 as cv
 import joblib
+import os            
 
 def str2bool(v):
     if v.lower() in ['on', 'yes', 'true', 'y', 't']:
@@ -25,29 +26,58 @@ parser.add_argument('--top_k', type=int, default=5000, help='Keep top_k bounding
 parser.add_argument('--save', '-s', type=str2bool, default=False, help='Set true to save results. This flag is invalid when using camera.')
 args = parser.parse_args()
 
-svc = joblib.load('./svc.pkl')
-mydict = ['LamKhang', 'ThanhHieu', "thanhhuy"]
 
 def visualize(names, input, faces, fps, thickness=2):
     if faces[1] is not None:
         for idx, face in enumerate(faces[1]):
+            print('Face {}, top-left coordinates: ({:.0f}, {:.0f}), box width: {:.0f}, box height {:.0f}, score: {:.2f}'.format(idx, face[0], face[1], face[2], face[3], face[-1]))
+
             coords = face[:-1].astype(np.int32)
-            
-            cv.rectangle(input, (coords[0], coords[1]), (coords[0]+coords[2], coords[1]+coords[3]), (0, 255, 0), thickness)
-            cv.circle(input, (coords[4], coords[5]), 2, (255, 0, 0), thickness)
-            cv.circle(input, (coords[6], coords[7]), 2, (0, 0, 255), thickness)
-            cv.circle(input, (coords[8], coords[9]), 2, (0, 255, 0), thickness)
-            cv.circle(input, (coords[10], coords[11]), 2, (255, 0, 255), thickness)
-            cv.circle(input, (coords[12], coords[13]), 2, (0, 255, 255), thickness)
+            center = ((coords[0] + coords[0] + coords[2]) // 2, (coords[1] + coords[1] + coords[3]) // 2)
+            axes = ((coords[2] // 2), (coords[3] // 2))
+            cv.ellipse(input, center, axes, 0, 0, 360, (0, 255, 0), thickness)
             
             name = names[idx]
             cv.putText(input, name, (coords[4] - 25, coords[5] - 170 - idx * 40), cv.FONT_HERSHEY_SIMPLEX, 0.8, (40, 35, 37), 2)
 
     cv.putText(input, 'FPS: {:.2f}'.format(fps), (1, 16), cv.FONT_HERSHEY_SIMPLEX, 0.5, (40, 35, 37), 2)
 
+def visualize_image(names, input, faces, fps, thickness=2):
+    if faces[1] is not None:
+        for idx, face in enumerate(faces[1]):
+            print('Face {}, top-left coordinates: ({:.0f}, {:.0f}), box width: {:.0f}, box height {:.0f}, score: {:.2f}'.format(idx, face[0], face[1], face[2], face[3], face[-1]))
 
+            coords = face[:-1].astype(np.int32)
+            center = ((coords[0] + coords[0] + coords[2]) // 2, (coords[1] + coords[1] + coords[3]) // 2)
+            axes = ((coords[2] // 2), (coords[3] // 2))
+            cv.ellipse(input, center, axes, 0, 0, 360, (0, 255, 0), thickness)
+            
+            name = names[idx]
+            cv.putText(input, name, (coords[4] - 25, coords[5] - 150), cv.FONT_HERSHEY_SIMPLEX, 0.8, (40, 35, 37), 2)
 
-if __name__ == '__main__':
+def get_subdirectory_names(root_directory):
+    def get_subdirectories(directory):
+        subdirectories = []
+        for entry in os.scandir(directory):
+            if entry.is_dir():
+                subdirectories.append(entry.name)
+                subdirectories.extend(get_subdirectories(entry.path))
+        return subdirectories
+    
+    # Kiểm tra xem thư mục gốc có tồn tại hay không
+    if not os.path.exists(root_directory):
+        print("Thư mục gốc không tồn tại.")
+        return []
+    
+    # Gọi hàm để lấy tất cả các thư mục con và lưu vào một mảng
+    subdirectories = get_subdirectories(root_directory)
+    
+    return subdirectories
+
+svc = joblib.load('./svc.pkl')
+mydict = get_subdirectory_names("image");
+
+def face_detection_with_camera():
     detector = cv.FaceDetectorYN.create(
         args.face_detection_model,
         "",
@@ -62,13 +92,13 @@ if __name__ == '__main__':
 
     tm = cv.TickMeter()
     cap = cv.VideoCapture(0)
-    frameWidth = 777
-    frameHeight = 617
+    frameWidth = 1320
+    frameHeight = 780
     detector.setInputSize([frameWidth, frameHeight])
 
     while True:
         hasFrame, frame = cap.read()
-        frame = cv.resize(frame, (777, 617))
+        frame = cv.resize(frame, (1320, 780))
         if not hasFrame:
             print('No frames grabbed!')
             break
@@ -95,5 +125,43 @@ if __name__ == '__main__':
 
         # Visualize results
         cv.imshow('Live', frame)
+        
+        cv.moveWindow('Live', 300, 110)
+    cv.destroyAllWindows()
 
+
+def face_detection_with_image(image_path):
+    svc = joblib.load('./svc.pkl')
+    mydict = get_subdirectory_names("image")
+
+    detector = cv.FaceDetectorYN.create(
+        args.face_detection_model,
+        "",
+        (1320, 680),
+        args.score_threshold,
+        args.nms_threshold,
+        args.top_k
+    )
+    
+    recognizer = cv.FaceRecognizerSF.create(
+        args.face_recognition_model, ""
+    )
+
+    frame = cv.imread(image_path)
+    frame = cv.resize(frame, (1320, 680))
+    faces = detector.detect(frame) 
+
+    if faces[1] is not None:
+        names = []
+        for face in faces[1]:
+            face_align = recognizer.alignCrop(frame, face)
+            face_feature = recognizer.feature(face_align)
+            test_predict = svc.predict(face_feature)
+            result = mydict[test_predict[0]]
+            names.append(result)
+
+        visualize_image(names, frame, faces, 0.0)  
+
+    cv.imshow('Image', frame)
+    cv.waitKey(0)
     cv.destroyAllWindows()

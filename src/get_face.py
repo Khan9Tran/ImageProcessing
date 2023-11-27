@@ -36,10 +36,8 @@ def visualize(input, faces, fps, thickness=2):
             print('Face {}, top-left coordinates: ({:.0f}, {:.0f}), box width: {:.0f}, box height {:.0f}, score: {:.2f}'.format(idx, face[0], face[1], face[2], face[3], face[-1]))
 
             coords = face[:-1].astype(np.int32)
-            
             center = ((coords[0] + coords[0] + coords[2]) // 2, (coords[1] + coords[1] + coords[3]) // 2)
             axes = ((coords[2] // 2), (coords[3] // 2))
-            
             cv.ellipse(input, center, axes, 0, 0, 360, (0, 255, 0), thickness)
             
     cv.putText(input, 'FPS: {:.2f}'.format(fps), (1, 16), cv.FONT_HERSHEY_SIMPLEX, 0.5, (40, 35, 37), 2)
