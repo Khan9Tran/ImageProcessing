@@ -1,6 +1,7 @@
 import streamlit as st
 
 def show_info():
+
     # Thông tin về thành viên 1
     name_1 = "Trần Lâm Nhựt Khang"
     student_id_1 = "21110497"
@@ -9,7 +10,7 @@ def show_info():
     # Thông tin về thành viên 2
     name_2 = "Nguyễn Thanh Huy"
     student_id_2 = "21110473"
-    image_path_2 = "TranLamNhutKhang.jpg"  # Thay đổi đường dẫn ảnh của thành viên 2
+    image_path_2 = "NguyenThanhHuy.jpg"  # Thay đổi đường dẫn ảnh của thành viên 2
 
     # Tạo trang web bằng Streamlit
     st.title("Thông Tin Nhóm")

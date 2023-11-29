@@ -10,6 +10,7 @@ import home
 import PredictCharacters as pcs
 import nhandangtraicay 
 
+
 def do_home():
     home.show_info()
 
@@ -68,3 +69,8 @@ with st.sidebar:
 if selected in menu_dict.keys():
         menu_dict[selected]["fn"]()
         
+
+with open('./style.css') as f:
+    css = f.read()
+
+st.markdown(f'<style>{css}</style>', unsafe_allow_html=True)
