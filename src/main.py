@@ -2,12 +2,13 @@ import streamlit as st
 from streamlit_option_menu import option_menu
 import solving_quadratic_equations as sqe
 import handwritten_digit_recognition as hdr
-import object_detection as obd
+# import object_detection as obd
 import qr_scanner as qrsc
 import image_processing_menu as menuImgProcessing
 import face_detection as fd
 import home
 import PredictCharacters as pcs
+import nhandangtraicay 
 
 def do_home():
     home.show_info()
@@ -27,6 +28,8 @@ def do_qr_scanner():
 def do_image_processing():
     menuImgProcessing.do_image_processing()
 
+def do_fruit_processing():
+    nhandangtraicay.solve()
 
 def do_face_detections():
     fd.solve()
@@ -34,12 +37,14 @@ def do_face_detections():
 def do_license_plate_detections():
     pcs.solve()
 
+
 menu_dict = {
     "Home" : {"fn": do_home},
     "Face detections": {"fn": do_face_detections},
     "Solving quadratic equations" : {"fn": do_solving_quadratic_equations},
     "Handwritten digit recognition using MNIST": {"fn": do_handwritten_digit_recognition},
     "Object detection using YOLOv4" : {"fn": do_object_detection},
+    "Fruit recognition of 5 types" : {"fn": do_fruit_processing},
     "Image processing" : {"fn": do_image_processing},
     "QR Scanner" : {"fn": do_qr_scanner},
     "License plates detections" : {"fn": do_license_plate_detections},

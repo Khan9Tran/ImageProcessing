@@ -137,7 +137,7 @@ def face_detection_with_image(image_path):
     detector = cv.FaceDetectorYN.create(
         args.face_detection_model,
         "",
-        (1320, 680),
+        (1320, 780),
         args.score_threshold,
         args.nms_threshold,
         args.top_k
@@ -148,7 +148,7 @@ def face_detection_with_image(image_path):
     )
 
     frame = cv.imread(image_path)
-    frame = cv.resize(frame, (1320, 680))
+    frame = cv.resize(frame, (1320, 780))
     faces = detector.detect(frame) 
 
     if faces[1] is not None:
