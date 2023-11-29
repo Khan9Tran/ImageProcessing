@@ -52,9 +52,6 @@ if 'is_load' not in st.session_state:
     st.session_state.is_load = True
     st.session_state.image = None  # Initialize image in session state
 
-    print('Lần đầu load model và data')
-else:
-    print('Đã load model và data rồi')
 
 def solve():
     st.title("Digit Recognition")
