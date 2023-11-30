@@ -9,6 +9,7 @@ import face_detection as fd
 import home
 import PredictCharacters as pcs
 import nhandangtraicay 
+import hand_recognition as hanrd
 
 
 def do_home():
@@ -38,6 +39,8 @@ def do_face_detections():
 def do_license_plate_detections():
     pcs.solve()
 
+def do_hand_recognition():
+    hanrd.solve()
 
 menu_dict = {
     "Home" : {"fn": do_home},
@@ -49,6 +52,7 @@ menu_dict = {
     "Image processing" : {"fn": do_image_processing},
     "QR Scanner" : {"fn": do_qr_scanner},
     "License plates detections" : {"fn": do_license_plate_detections},
+    "Hand recognition" : {"fn": do_hand_recognition},
 }
 with st.sidebar:
     selected = option_menu(None, 
@@ -61,10 +65,11 @@ with st.sidebar:
             "Fruit recognition of 5 types",
             "Image processing",
             "QR Scanner",
-            "License plates detections"
+            "License plates detections",
+            "Hand recognition"
             ]
         ,
-        default_index=0, icons=['house', '1-square-fill', '2-square-fill', '3-square-fill', '4-square-fill', '5-square-fill', '6-square-fill', '7-square-fill', '8-square-fill'])
+        default_index=0, icons=['house', '1-square-fill', '2-square-fill', '3-square-fill', '4-square-fill', '5-square-fill', '6-square-fill', '7-square-fill', '8-square-fill', '9-square-fill'])
 
 if selected in menu_dict.keys():
         menu_dict[selected]["fn"]()
